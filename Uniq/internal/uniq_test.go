@@ -61,7 +61,6 @@ func TestUniqSuccess(t *testing.T) {
 	}
 }
 
-/*
 func TestUniqFail(t *testing.T) {
 	var testCases = []struct {
 		arguments Arguments
@@ -83,4 +82,3 @@ func TestUniqFail(t *testing.T) {
 		assert.NotNil(t, err)
 	}
 }
-*/

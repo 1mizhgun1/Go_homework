@@ -1,9 +1,12 @@
 package uniq
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
+
+const UsageError = "incorrect usage of flags"
 
 func cutWords(data string, num int) string {
 	words := strings.Fields(data)
@@ -31,7 +34,9 @@ func performString(data string, args Arguments) string {
 
 	if args.num > 0 {
 		result = cutWords(result, args.num)
-	} else if args.chars > 0 {
+	}
+
+	if args.chars > 0 {
 		result = cutChars(result, args.chars)
 	}
 
@@ -47,6 +52,10 @@ type uniqCounter struct {
 func Uniq(data []string, args Arguments) ([]string, error) {
 	if len(data) == 0 {
 		return []string{}, nil
+	}
+
+	if !args.IsValid() {
+		return nil, errors.New(UsageError)
 	}
 
 	// preparing data by processing i, f, s flags

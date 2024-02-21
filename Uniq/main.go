@@ -8,12 +8,8 @@ import (
 )
 
 func main() {
-	var args = app.Arguments{}
+	var args app.Arguments
 	args.Parse()
-	if !args.IsValid() {
-		flag.Usage()
-		return
-	}
 
 	data, err := app.ReadData(args)
 	if err != nil {
@@ -24,6 +20,9 @@ func main() {
 	result, err := app.Uniq(data, args)
 	if err != nil {
 		fmt.Println(err)
+		if err.Error() == app.UsageError {
+			flag.Usage()
+		}
 		return
 	}
 
