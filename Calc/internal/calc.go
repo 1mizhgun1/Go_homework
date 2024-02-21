@@ -24,37 +24,43 @@ func validate(expression string) error {
 	size := getSize(expression)
 
 	if size == 0 {
-		return errors.New("Пустое выражение.\n")
+		return errors.New("пустое выражение")
 	}
 
-	for i, char := range expression {
+	runedExpression := []rune(expression)
+	for i, char := range runedExpression {
 		if isOperation(char) {
-			if i == 0 || !isDigit(rune(expression[i-1])) && !isClosedBracket(rune(expression[i-1])) {
-				return errors.New("Сразу до знака операции должен идти операнд, либо закрывающая скобка.\n")
-			} else if i == size-1 || !isDigit(rune(expression[i+1])) && !isOpenedBracket(rune(expression[i+1])) {
-				return errors.New("Сразу после знака операции должен идти операнд, либо открывающая скобка.\n")
+			if i == 0 || !isDigit(runedExpression[i-1]) && !isClosedBracket(runedExpression[i-1]) {
+				return errors.New("сразу до знака операции должен идти операнд, либо закрывающая скобка")
+			} else if i == size-1 || !isDigit(runedExpression[i+1]) && !isOpenedBracket(runedExpression[i+1]) {
+				return errors.New("сразу после знака операции должен идти операнд, либо открывающая скобка")
 			}
-		} else if isOpenedBracket(char) {
-			balance++
-			if i == size-1 || !isDigit(rune(expression[i+1])) && !isOpenedBracket(rune(expression[i+1])) {
-				return errors.New("Сразу после открывающей скобки должен идти операнд, либо открывающая скобка.\n")
-			}
-		} else if isClosedBracket(char) {
-			balance--
-			if i == 0 || !isDigit(rune(expression[i-1])) && !isClosedBracket(rune(expression[i-1])) {
-				return errors.New("Закрывающая скобка должна идти сразу после операнда, либо закрывающей скобки.\n")
-			}
-		} else if !isDigit(char) && !isEndline(char) {
-			return errors.New("Выражение может состоять только из этих символов: 0123456789()+-*/\n")
+			continue
 		}
 
-		if balance < 0 {
-			return errors.New("Закрывающая скобка должна идти после соответствующей открывающей.\n")
+		if isOpenedBracket(char) {
+			balance++
+			if i == size-1 || !isDigit(runedExpression[i+1]) && !isOpenedBracket(runedExpression[i+1]) {
+				return errors.New("сразу после открывающей скобки должен идти операнд, либо открывающая скобка")
+			}
+			continue
+		}
+
+		if isClosedBracket(char) {
+			balance--
+			if i == 0 || !isDigit(runedExpression[i-1]) && !isClosedBracket(runedExpression[i-1]) {
+				return errors.New("закрывающая скобка должна идти сразу после операнда, либо закрывающей скобки")
+			}
+			continue
+		}
+
+		if !isDigit(char) && !isEndline(char) {
+			return errors.New("выражение может состоять только из этих символов: 0123456789()+-*/")
 		}
 	}
 
 	if balance != 0 {
-		return errors.New("Количество открывающих и закрывающих скобок должно быть одинаково.\n")
+		return errors.New("количество открывающих и закрывающих скобок должно быть одинаково")
 	}
 
 	return nil

@@ -15,18 +15,8 @@ type Arguments struct {
 	output string
 }
 
-func (args *Arguments) isValid() bool {
-	cnt := 0
-	if args.c {
-		cnt++
-	}
-	if args.d {
-		cnt++
-	}
-	if args.u {
-		cnt++
-	}
-	return cnt <= 1 && args.num >= 0 && args.chars >= 0
+func (args *Arguments) IsValid() bool {
+	return !(args.c && args.d || args.c && args.u || args.d && args.u) && args.num >= 0 && args.chars >= 0
 }
 
 func (args *Arguments) Parse() {
@@ -39,10 +29,6 @@ func (args *Arguments) Parse() {
 
 	flag.Parse()
 
-	if flag.NArg() > 0 {
-		args.input = flag.Arg(0)
-	}
-	if flag.NArg() > 1 {
-		args.output = flag.Arg(1)
-	}
+	args.input = flag.Arg(0)
+	args.output = flag.Arg(1)
 }

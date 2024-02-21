@@ -1,17 +1,21 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	app "github.com/1mizhgun1/Uniq_strings/internal"
 )
 
 func main() {
-	args := app.Arguments{}
+	var args = app.Arguments{}
 	args.Parse()
+	if !args.IsValid() {
+		flag.Usage()
+		return
+	}
 
-	var data []string
-	err := app.ReadData(&data, args)
+	data, err := app.ReadData(args)
 	if err != nil {
 		fmt.Println(err)
 		return

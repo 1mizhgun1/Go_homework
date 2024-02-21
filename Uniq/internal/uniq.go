@@ -1,10 +1,8 @@
 package uniq
 
 import (
-	"errors"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 )
 
 func cutWords(data string, num int) string {
@@ -16,12 +14,14 @@ func cutWords(data string, num int) string {
 }
 
 func cutChars(data string, chars int) string {
-	if chars >= utf8.RuneCountInString(data) {
+	var runeData []rune = []rune(data)
+	if chars >= len(runeData) {
 		return ""
 	}
-	return string([]rune(data)[chars:])
+	return string(runeData[chars:])
 }
 
+// processing i, f, s flags for one string
 func performString(data string, args Arguments) string {
 	result := data
 
@@ -46,14 +46,11 @@ type uniqCounter struct {
 
 func Uniq(data []string, args Arguments) ([]string, error) {
 	if len(data) == 0 {
-		return nil, errors.New("Input file is empty\n")
+		return []string{}, nil
 	}
 
-	if !args.isValid() {
-		return nil, errors.New("Command should be in this format:\nuniq [-c | -d | -u] [-i] [-f num] [-s chars] [input_file [output_file]]")
-	}
-
-	performedData := []string{}
+	// preparing data by processing i, f, s flags
+	var performedData []string
 	for _, item := range data {
 		performedData = append(performedData, performString(item, args))
 	}
@@ -66,6 +63,7 @@ func Uniq(data []string, args Arguments) ([]string, error) {
 			continue
 		}
 
+		// count number of equal strings
 		if item == currentState.data {
 			currentState.count++
 		} else {
@@ -75,7 +73,8 @@ func Uniq(data []string, args Arguments) ([]string, error) {
 	}
 	counter = append(counter, currentState)
 
-	result := []string{}
+	// make result strings, depending from c | d | u flags
+	var result []string
 	for _, item := range counter {
 		if args.c {
 			result = append(result, strconv.Itoa(item.count)+" "+data[item.index])

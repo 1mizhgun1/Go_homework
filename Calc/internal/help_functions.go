@@ -1,6 +1,7 @@
 package calc
 
 import (
+	"strings"
 	"unicode/utf8"
 )
 
@@ -25,9 +26,5 @@ func isEndline(char rune) bool {
 }
 
 func getSize(str string) int {
-	size := utf8.RuneCountInString(str)
-	if size > 0 && isEndline(rune(str[size-1])) {
-		size--
-	}
-	return size
+	return utf8.RuneCountInString(strings.TrimSpace(str))
 }

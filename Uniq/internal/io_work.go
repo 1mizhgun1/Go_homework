@@ -5,40 +5,42 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"unicode/utf8"
 )
 
-func readLines(reader io.Reader, data *[]string) error {
+func readLines(reader io.Reader) ([]string, error) {
+	var data []string
+
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		*data = append(*data, scanner.Text())
+		data = append(data, scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return data, nil
 }
 
-func ReadData(data *[]string, args Arguments) error {
-	if utf8.RuneCountInString(args.input) > 0 {
+func ReadData(args Arguments) ([]string, error) {
+	var data []string
+	var reader io.Reader = os.Stdin
+
+	if len(args.input) > 0 {
 		file, err := os.Open(args.input)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		defer file.Close()
 
-		err = readLines(file, data)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := readLines(os.Stdin, data)
-		if err != nil {
-			return err
-		}
+		reader = file
 	}
-	return nil
+
+	data, err := readLines(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func writeLines(writer io.Writer, data []string) error {
@@ -52,22 +54,22 @@ func writeLines(writer io.Writer, data []string) error {
 }
 
 func WriteAnswer(data []string, args Arguments) error {
-	if utf8.RuneCountInString(args.output) > 0 {
+	var writer io.Writer = os.Stdout
+
+	if len(args.output) > 0 {
 		file, err := os.Create(args.output)
 		if err != nil {
 			return err
 		}
 		defer file.Close()
 
-		err = writeLines(file, data)
-		if err != nil {
-			return err
-		}
-	} else {
-		err := writeLines(os.Stdout, data)
-		if err != nil {
-			return err
-		}
+		writer = file
 	}
+
+	err := writeLines(writer, data)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
