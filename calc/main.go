@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	app "github.com/1mizhgun1/Calc_expressions/internal"
 	"os"
+
+	app "calc/internal"
 )
 
 func main() {

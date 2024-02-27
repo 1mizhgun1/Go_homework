@@ -1,4 +1,4 @@
-module github.com/1mizhgun1/Calc_expressions
+module uniq
 
 go 1.21.5
 

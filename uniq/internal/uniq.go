@@ -17,7 +17,7 @@ func cutWords(data string, num int) string {
 }
 
 func cutChars(data string, chars int) string {
-	var runeData []rune = []rune(data)
+	runeData := []rune(data)
 	if chars >= len(runeData) {
 		return ""
 	}

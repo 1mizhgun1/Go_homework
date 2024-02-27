@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	app "github.com/1mizhgun1/Uniq_strings/internal"
+	app "uniq/internal"
 )
 
 func main() {

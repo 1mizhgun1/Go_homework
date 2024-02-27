@@ -90,8 +90,7 @@ func convertToSlice(expression string) []string {
 }
 
 func covertToPostfix(infix []string) []string {
-	var postfix []string
-	var stack []string
+	var postfix, stack []string
 	precedence := map[string]int{"+": 1, "-": 1, "*": 2, "/": 2}
 
 	for _, token := range infix {
