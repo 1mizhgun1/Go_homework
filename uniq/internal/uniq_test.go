@@ -50,7 +50,7 @@ func TestUniqSuccess(t *testing.T) {
 		{ // input is empty
 			Arguments{c: false, d: false, u: false, i: false, num: 0, chars: 0, input: "", output: ""},
 			[]string{},
-			[]string{},
+			nil,
 		},
 	}
 

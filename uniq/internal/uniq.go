@@ -51,7 +51,7 @@ type uniqCounter struct {
 
 func Uniq(data []string, args Arguments) ([]string, error) {
 	if len(data) == 0 {
-		return []string{}, nil
+		return nil, nil
 	}
 
 	if !args.IsValid() {
@@ -62,6 +62,9 @@ func Uniq(data []string, args Arguments) ([]string, error) {
 	var performedData []string
 	for _, item := range data {
 		performedData = append(performedData, performString(item, args))
+	}
+	if len(performedData) == 0 {
+		return nil, nil
 	}
 
 	var counter []uniqCounter

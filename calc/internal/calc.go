@@ -1,6 +1,7 @@
 package calc
 
 import (
+	"calc/internal/utils"
 	"errors"
 	"strconv"
 	"strings"
@@ -90,74 +91,94 @@ func convertToSlice(expression string) []string {
 }
 
 func covertToPostfix(infix []string) []string {
-	var postfix, stack []string
+	var (
+		postfix []string
+		stack   = utils.CreateStack()
+	)
 	precedence := map[string]int{"+": 1, "-": 1, "*": 2, "/": 2}
 
 	for _, token := range infix {
 		switch token {
 		case "+", "-", "*", "/":
-			for len(stack) > 0 && precedence[stack[len(stack)-1]] >= precedence[token] {
-				postfix = append(postfix, stack[len(stack)-1])
-				stack = stack[:len(stack)-1]
+			for !stack.IsEmpty() && precedence[stack.Top().(string)] >= precedence[token] {
+				postfix = append(postfix, stack.Top().(string))
+				stack.Pop()
 			}
-			stack = append(stack, token)
+			stack.Push(token)
 		case "(":
-			stack = append(stack, token)
+			stack.Push(token)
 		case ")":
-			for stack[len(stack)-1] != "(" {
-				postfix = append(postfix, stack[len(stack)-1])
-				stack = stack[:len(stack)-1]
+			for stack.Top() != "(" {
+				postfix = append(postfix, stack.Top().(string))
+				stack.Pop()
 			}
-			stack = stack[:len(stack)-1]
+			stack.Pop()
 		default:
 			postfix = append(postfix, token)
 		}
 	}
 
-	for len(stack) > 0 {
-		postfix = append(postfix, stack[len(stack)-1])
-		stack = stack[:len(stack)-1]
+	for !stack.IsEmpty() {
+		postfix = append(postfix, stack.Top().(string))
+		stack.Pop()
 	}
 
 	return postfix
 }
 
-func solve(postfix []string) float64 {
-	var stack []float64
+func extractOperands(stack *utils.Stack) (float64, float64, bool, bool) {
+	op2, ok2 := stack.Top().(float64)
+	stack.Pop()
+	op1, ok1 := stack.Top().(float64)
+	stack.Pop()
+	return op1, op2, ok1, ok2
+}
+
+func solve(postfix []string) (float64, error) {
+	stack := utils.CreateStack()
 
 	for _, token := range postfix {
 		switch token {
 		case "+":
-			op2 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			op1 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			stack = append(stack, op1+op2)
+			op1, op2, ok1, ok2 := extractOperands(stack)
+			if ok2 && ok1 {
+				stack.Push(op1 + op2)
+			} else {
+				return answerWhenError, errors.New("internal error")
+			}
 		case "-":
-			op2 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			op1 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			stack = append(stack, op1-op2)
+			op1, op2, ok1, ok2 := extractOperands(stack)
+			if ok2 && ok1 {
+				stack.Push(op1 - op2)
+			} else {
+				return answerWhenError, errors.New("internal error")
+			}
 		case "*":
-			op2 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			op1 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			stack = append(stack, op1*op2)
+			op1, op2, ok1, ok2 := extractOperands(stack)
+			if ok2 && ok1 {
+				stack.Push(op1 * op2)
+			} else {
+				return answerWhenError, errors.New("internal error")
+			}
 		case "/":
-			op2 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			op1 := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			stack = append(stack, op1/op2)
+			op1, op2, ok1, ok2 := extractOperands(stack)
+			if ok2 && ok1 {
+				stack.Push(op1 / op2)
+			} else {
+				return answerWhenError, errors.New("internal error")
+			}
 		default:
 			num, _ := strconv.ParseFloat(token, 64)
-			stack = append(stack, num)
+			stack.Push(num)
 		}
 	}
 
-	return stack[0]
+	result, ok := stack.Top().(float64)
+	if !ok {
+		return answerWhenError, errors.New("internal error")
+	}
+
+	return result, nil
 }
 
 func Calc(expression string) (float64, error) {
@@ -170,5 +191,5 @@ func Calc(expression string) (float64, error) {
 	slice := convertToSlice(preparedExpression)
 	postfix := covertToPostfix(slice)
 
-	return solve(postfix), nil
+	return solve(postfix)
 }
