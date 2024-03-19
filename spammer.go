@@ -14,14 +14,7 @@ func RunPipeline(cmds ...cmd) {
 		out := make(chan interface{})
 
 		wg.Add(1)
-		go func(in, out chan interface{}, task cmd) {
-			defer func() {
-				wg.Done()
-				close(out)
-			}()
-
-			task(in, out)
-		}(in, out, task)
+		go RunTask(&wg, in, out, task)
 
 		in = out
 	}
@@ -169,4 +162,13 @@ func CombineResults(in, out chan interface{}) {
 	for _, msgData := range results {
 		out <- fmt.Sprintf("%t %d", msgData.HasSpam, msgData.ID)
 	}
+}
+
+func RunTask(wg *sync.WaitGroup, in, out chan interface{}, task cmd) {
+	defer func() {
+		wg.Done()
+		close(out)
+	}()
+
+	task(in, out)
 }
