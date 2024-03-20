@@ -1,8 +1,9 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"sync"
 )
 
@@ -151,12 +152,14 @@ func CombineResults(in, out chan interface{}) {
 		results = append(results, msgData)
 	}
 
-	sort.Slice(results, func(i, j int) bool {
-		if results[i].HasSpam != results[j].HasSpam {
-			return results[i].HasSpam
+	slices.SortFunc(results, func(i, j MsgData) int {
+		if i.HasSpam != j.HasSpam {
+			if i.HasSpam {
+				return -1
+			}
+			return 1
 		}
-
-		return results[i].ID < results[j].ID
+		return cmp.Compare(i.ID, j.ID)
 	})
 
 	for _, msgData := range results {
